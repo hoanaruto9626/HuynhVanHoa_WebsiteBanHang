@@ -1,0 +1,69 @@
+﻿@model WebsiteBanHang.Connect.category
+
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    .width-text-box {
+        width: 160px;
+    }
+</style>
+<div class="content-wrapper">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+            <h4>Thêm mới danh mục</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                Tên
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.name, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                Danh mục cha
+                <div class="col-md-10">
+                    @Html.DropDownListFor(
+    model => model.parent_id, // Gắn với thuộc tính `parent_id` trong model
+    ViewBag.CategoryList as SelectList,
+    "-- Không chọn --",
+    new { @class = "form-control" }
+)
+                </div>
+            </div>
+
+            <div class="form-group">
+                Ảnh
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.image, null, new { type = "file", @class = "form-control", name = "ImageUpload" })
+                    @Html.ValidationMessageFor(model => model.image, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                Trạng thái
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        @Html.EditorFor(model => model.status, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.status, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Thêm mới" class="btn btn-success" />
+                    <input type="reset" value="Làm lại" class="btn btn-danger" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <div>
+        @Html.ActionLink("Trở về danh sách", "Index")
+    </div>
+</div>
