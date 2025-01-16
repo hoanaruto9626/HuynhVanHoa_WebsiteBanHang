@@ -1,0 +1,110 @@
+﻿@model WebsiteBanHang.Connect.Product
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-wrapper py-4 bg-light">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <h2 class="text-primary">Chỉnh sửa sản phẩm</h2>
+                <hr />
+            </div>
+        </div>
+
+        <!-- Form -->
+        @using (Html.BeginForm("Edit", "Product", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Sửa thông tin sản phẩm</h4>
+                </div>
+                <div class="card-body">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.Id)
+
+                    <div class="row">
+                        <!-- Name -->
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(model => model.Name, "Tên sản phẩm", htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập tên sản phẩm" } })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(model => model.Price, "Giá (VND)", htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", placeholder = "Nhập giá sản phẩm" } })
+                            @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Category -->
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(model => model.CategoryId, "Danh mục", htmlAttributes: new { @class = "form-label" })
+                            @Html.DropDownList("CategoryId", (SelectList)ViewBag.CategoryList, "Chọn danh mục", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Brand -->
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(model => model.BrandId, "Thương hiệu", htmlAttributes: new { @class = "form-label" })
+                            @Html.DropDownList("BrandId", (SelectList)ViewBag.BrandList, "Chọn thương hiệu", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.BrandId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        @Html.LabelFor(model => model.Description, "Mô tả", htmlAttributes: new { @class = "form-label" })
+                        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 3, placeholder = "Nhập mô tả sản phẩm", id = "description" })
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        <script>
+                            CKEDITOR.replace("description");
+                        </script>
+                    </div>
+
+                    <!-- Image -->
+                    <div class="mb-3">
+                        <label class="form-label">Ảnh hiện tại:</label>
+                        <div class="mb-2">
+                            <img src="@Url.Content("~/Content/images/product/" + Model.Images)"
+                                 alt="@Model.Name" class="img-thumbnail" style="width: 80px; height: 80px;" />
+                        </div>
+                        @Html.Hidden("oldimage", @Model.Images)
+                        @Html.Label("Ảnh mới", htmlAttributes: new { @class = "form-label" })
+                        <input type="file" name="ImageUpload" class="form-control" accept="image/*" />
+                    </div>
+
+                    <!-- Details -->
+                    <div class="mb-3">
+                        @Html.LabelFor(model => model.Details, "Chi tiết", htmlAttributes: new { @class = "form-label" })
+                        @Html.TextAreaFor(model => model.Details, new { @class = "form-control", rows = 5, placeholder = "Nhập chi tiết sản phẩm", id = "details" })
+                        @Html.ValidationMessageFor(model => model.Details, "", new { @class = "text-danger" })
+                        <script>
+                            CKEDITOR.replace("details");
+                        </script>
+                    </div>
+
+                    <!-- Loại sản phẩm -->
+                    <div class="mb-3">
+                        <label for="ProductType">Loại sản phẩm</label>
+                        @Html.DropDownList("TypeId", (SelectList)ViewBag.ProductType, "Chọn loại sản phẩm", new { @class = "form-control" })
+                        @Html.ValidationMessage("TypeId", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
+                </div>
+            </div>
+        }
+    </div>
+</div>

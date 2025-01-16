@@ -12,25 +12,27 @@ namespace WebsiteBanHang.Connect
     using System;
     using System.Collections.Generic;
     
-    public partial class category
+    public partial class Category
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public category()
+        public Category()
         {
-            this.products = new HashSet<product>();
-            this.categories1 = new HashSet<category>();
+            this.Products = new HashSet<Product>();
+            this.Categories1 = new HashSet<Category>();
         }
     
-        public int id { get; set; }
-        public string name { get; set; }
-        public Nullable<int> parent_id { get; set; }
-        public string image { get; set; }
-        public Nullable<bool> status { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Nullable<int> ParentId { get; set; }
+        public string Image { get; set; }
+        public Nullable<bool> Status { get; set; }
+        public Nullable<System.DateTime> CreatedAt { get; set; }
+        public Nullable<System.DateTime> UpdatedAt { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<product> products { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<category> categories1 { get; set; }
-        public virtual category category1 { get; set; }
+        public virtual ICollection<Category> Categories1 { get; set; }
+        public virtual Category Category1 { get; set; }
     }
 }

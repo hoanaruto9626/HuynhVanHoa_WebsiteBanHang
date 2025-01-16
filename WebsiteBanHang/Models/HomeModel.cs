@@ -8,7 +8,8 @@ namespace WebsiteBanHang.Models
 {
     public class HomeModel
     {
-        public List<category> categories { get; set; }
-        public List<product> products {  get; set; }
+        public List<Category> categories { get; set; }
+        public List<Product> products {  get; set; }
+        public List<Brand> brands { get; set; }
     }
 }

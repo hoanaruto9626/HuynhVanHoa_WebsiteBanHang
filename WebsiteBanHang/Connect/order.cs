@@ -12,25 +12,26 @@ namespace WebsiteBanHang.Connect
     using System;
     using System.Collections.Generic;
     
-    public partial class order
+    public partial class Order
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public order()
+        public Order()
         {
-            this.order_items = new HashSet<order_items>();
+            this.OrderItems = new HashSet<OrderItem>();
         }
     
-        public int id { get; set; }
-        public int user_id { get; set; }
-        public Nullable<System.DateTime> order_date { get; set; }
-        public decimal total_amount { get; set; }
-        public string status { get; set; }
-        public string shipping_address { get; set; }
-        public Nullable<System.DateTime> created_at { get; set; }
-        public Nullable<System.DateTime> updated_at { get; set; }
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public Nullable<System.DateTime> OrderDate { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string Status { get; set; }
+        public string ShippingAddress { get; set; }
+        public Nullable<System.DateTime> CreatedAt { get; set; }
+        public Nullable<System.DateTime> UpdatedAt { get; set; }
+        public string Name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<order_items> order_items { get; set; }
-        public virtual user user { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public virtual User User { get; set; }
     }
 }

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using PagedList;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using WebsiteBanHang.Connect;
 using WebsiteBanHang.Models;
@@ -16,13 +16,15 @@ namespace WebsiteBanHang.Controllers
         WebsiteBanHangEntities objWebsiteBanHangEntities = new WebsiteBanHangEntities();
         public ActionResult Index()
         {
-            var lstCategory = objWebsiteBanHangEntities.categories.ToList();
-            var lstProduct = objWebsiteBanHangEntities.products.ToList();
+            var lstCategory = objWebsiteBanHangEntities.Categories.ToList();
+            var lstProduct = objWebsiteBanHangEntities.Products.ToList();
+            var lstBrand = objWebsiteBanHangEntities.Brands.ToList();
 
             var model = new HomeModel
             {
                 categories = lstCategory,
-                products = lstProduct
+                products = lstProduct,
+                brands = lstBrand
             };
 
             return View(model);
@@ -36,30 +38,29 @@ namespace WebsiteBanHang.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(user _user)
+        public ActionResult Register(Connect.User _user)
         {
             //Kiem tra va luu vao db
             if (ModelState.IsValid)
             {
-                var check = objWebsiteBanHangEntities.users.FirstOrDefault(s => s.email == _user.email);
+                var check = objWebsiteBanHangEntities.Users.FirstOrDefault(s => s.Email == _user.Email);
                 if (check == null)
                 {
-                    _user.password = GetMD5(_user.password);
+                    _user.Password = GetMD5(_user.Password);
                     objWebsiteBanHangEntities.Configuration.ValidateOnSaveEnabled = false;
-                    objWebsiteBanHangEntities.users.Add(_user);
+                    objWebsiteBanHangEntities.Users.Add(_user);
                     objWebsiteBanHangEntities.SaveChanges();
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    ViewBag.error = "Email already exists";
+                    ViewBag.error = "Email đã tồn tại.";
                     return View();
                 }
-
-
             }
             return View();
         }
+
         //create a string MD5
         public static string GetMD5(string str)
         {
@@ -84,20 +85,18 @@ namespace WebsiteBanHang.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string email, string password)
+        public ActionResult Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-
-
-                var f_password = GetMD5(password);
-                var data = objWebsiteBanHangEntities.users.Where(s => s.email.Equals(email) && s.password.Equals(f_password)).ToList();
+                var f_password = GetMD5(model.Password);
+                var data = objWebsiteBanHangEntities.Users.Where(s => (s.UserName.Equals(model.EmailOrUsername) || s.Email.Equals(model.EmailOrUsername)) && s.Password.Equals(f_password)).ToList();
                 if (data.Count() > 0)
                 {
                     //add session
-                    Session["FullName"] = data.FirstOrDefault().first_name + " " + data.FirstOrDefault().last_name;
-                    Session["Email"] = data.FirstOrDefault().email;
-                    Session["idUser"] = data.FirstOrDefault().id;
+                    Session["FullName"] = data.FirstOrDefault().LastName + " " + data.FirstOrDefault().FirstName;
+                    Session["Email"] = data.FirstOrDefault().Email;
+                    Session["idUser"] = data.FirstOrDefault().Id;
                     return RedirectToAction("Index");
                 }
                 else
@@ -106,7 +105,7 @@ namespace WebsiteBanHang.Controllers
                     return RedirectToAction("Login");
                 }
             }
-            return View();
+            return View(model);
         }
 
 
@@ -125,17 +124,57 @@ namespace WebsiteBanHang.Controllers
         {
             return View();
         }
-        public ActionResult Listing_Gird()
+        public ActionResult Listing_Gird(string SearchString, string currentFilter, int? page)
         {
-            return View();
+            if (SearchString == null)
+            {
+                SearchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = SearchString;
+
+            var products = objWebsiteBanHangEntities.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                products = products.Where(n => n.Name.Contains(SearchString));
+            }
+
+            products = products.OrderByDescending(n => n.Id);
+
+            int pageSize = 4;
+            int pageNumber = (page ?? 1);
+            return View(products.ToPagedList(pageNumber, pageSize));
         }
-        public ActionResult Listing_Large()
+        public ActionResult Listing_Large(string SearchString, string currentFilter, int? page)
         {
-            return View();
+            if (SearchString == null)
+            {
+                SearchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = SearchString;
+
+            var products = objWebsiteBanHangEntities.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                products = products.Where(n => n.Name.Contains(SearchString));
+            }
+
+            products = products.OrderByDescending(n => n.Id);
+            int pageSize = 5;
+            int pageNumber = (page ?? 1);
+            return View(products.ToPagedList(pageNumber, pageSize));
         }
         public ActionResult Shopping_Cart()
         {
             return View();
+        }
+        // Phương thức loại bỏ thẻ HTML
+        public string StripHtml(string input)
+        {
+            return Regex.Replace(input, "<.*?>", String.Empty); // Loại bỏ thẻ HTML
         }
     }
 }

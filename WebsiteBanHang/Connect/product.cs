@@ -12,31 +12,38 @@ namespace WebsiteBanHang.Connect
     using System;
     using System.Collections.Generic;
     
-    public partial class product
+    public partial class Product
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public product()
+        public Product()
         {
-            this.order_items = new HashSet<order_items>();
-            this.product_images = new HashSet<product_images>();
+            this.OrderItems = new HashSet<OrderItem>();
+            this.ShoppingCarts = new HashSet<ShoppingCart>();
+            this.Stocks = new HashSet<Stock>();
+            this.Wishlists = new HashSet<Wishlist>();
         }
     
-        public int id { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public string details { get; set; }
-        public decimal price { get; set; }
-        public int category_id { get; set; }
-        public int brand_id { get; set; }
-        public Nullable<int> stock_quantity { get; set; }
-        public Nullable<System.DateTime> created_at { get; set; }
-        public Nullable<System.DateTime> updated_at { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Details { get; set; }
+        public Nullable<decimal> Price { get; set; }
+        public int CategoryId { get; set; }
+        public int BrandId { get; set; }
+        public string Images { get; set; }
+        public Nullable<System.DateTime> CreatedAt { get; set; }
+        public Nullable<System.DateTime> UpdatedAt { get; set; }
+        public Nullable<int> TypeId { get; set; }
     
-        public virtual brand brand { get; set; }
-        public virtual category category { get; set; }
+        public virtual Brand Brand { get; set; }
+        public virtual Category Category { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<order_items> order_items { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<product_images> product_images { get; set; }
+        public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Stock> Stocks { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Wishlist> Wishlists { get; set; }
     }
 }

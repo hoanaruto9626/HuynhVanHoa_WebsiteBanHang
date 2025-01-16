@@ -25,12 +25,14 @@ namespace WebsiteBanHang.Connect
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<brand> brands { get; set; }
-        public virtual DbSet<category> categories { get; set; }
-        public virtual DbSet<order_items> order_items { get; set; }
-        public virtual DbSet<order> orders { get; set; }
-        public virtual DbSet<product_images> product_images { get; set; }
-        public virtual DbSet<product> products { get; set; }
-        public virtual DbSet<user> users { get; set; }
+        public virtual DbSet<Brand> Brands { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<OrderItem> OrderItems { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public virtual DbSet<Stock> Stocks { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Wishlist> Wishlists { get; set; }
     }
 }

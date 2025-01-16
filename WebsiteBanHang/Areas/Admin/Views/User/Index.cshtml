@@ -1,0 +1,66 @@
+﻿@model IEnumerable<WebsiteBanHang.Connect.User>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Danh sách người dùng</h2>
+                @Html.ActionLink("Thêm mới", "Create", null, new { @class = "btn btn-primary" })
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Tên đăng nhập</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>Tên</th>
+                            <th>Họ</th>
+                            <th>Số điện thoại</th>
+                            <th>Quyền</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                                <td>
+                                    @if (item.IsAdmin == true)
+                                    {
+                                        <span class="badge bg-success">Admin</span>
+                                    }
+                                    else
+                                    {
+                                        if (item.IsAdmin == false)
+                                        {
+                                            <span class="badge bg-primary">User</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Chưa có quyền</span>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @Html.ActionLink("Sửa", "Edit", new { id = item.Id }, new { @class = "btn btn-sm btn-warning mx-1" })
+                                    @Html.ActionLink("Chi tiết", "Details", new { id = item.Id }, new { @class = "btn btn-sm btn-info mx-1" })
+                                    @Html.ActionLink("Xóa", "Delete", new { id = item.Id }, new { @class = "btn btn-sm btn-danger mx-1" })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>

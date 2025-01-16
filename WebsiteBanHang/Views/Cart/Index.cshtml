@@ -6,25 +6,62 @@
 
 <script type="text/javascript">
     $(function () {
-        $("#removecart").click(function () {
-            var model = {};
-            //lấy id sản phẩm
-            model.Id = $("#productid").val();
+        function calculateCartTotals() {
+            let totalPrice = 0;
+
+            // Lấy giá của từng sản phẩm và tính tổng
+            $(".price-wrap").each(function () {
+                // Lấy giá sản phẩm
+                let price = parseFloat($(this).find(".price").text().replace(/[^0-9.-]+/g, ""));
+                // Lấy số lượng sản phẩm
+                let quantity = parseInt($(this).closest("tr").find(".product-quantity").val()) || 1;
+
+                // Cộng vào tổng giá
+                totalPrice += price * quantity;
+            });
+
+            // Giả sử giá giảm là 100 USD
+            let discount = 0;
+            let finalTotal = totalPrice - discount;
+
+            // Cập nhật giá trị hiển thị
+            $("#totalPrice").text(totalPrice.toLocaleString() + "đ");
+            $("#finalTotal").html("<strong>" + finalTotal.toLocaleString() + " đ</strong>");
+        }
+
+        // Tính toán khi trang được tải
+        calculateCartTotals();
+
+        // Nếu số lượng thay đổi, tính toán lại
+        $(".product-quantity").on("change", function () {
+            // Kiểm tra giá trị hợp lệ, nếu không thì gán mặc định là 1
+            let quantity = parseInt($(this).val());
+            if (isNaN(quantity) || quantity < 1) {
+                $(this).val(1); // Gán giá trị mặc định là 1
+            }
+            calculateCartTotals();
+        });
+
+        $(".removecart").click(function (e) {
+            e.preventDefault();
+            var productId = $(this).data("id");
+
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("Remove", "Cart")',
-                data:  JSON.stringify(model) ,
+                data: JSON.stringify({ Id: productId }) ,
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function () {
-                    $('#CartCount').text(@Session["count"] - 1);
-                    $("#product-" + model.Id).remove();
+                    $(`tr[data-id="${productId}"]`).remove();
+
+                    // Cập nhật tổng giá
+                    calculateCartTotals();
                 },
                 error: function () {
-                    alert("Lỗi trong khi thêm vào giỏ hàng!");
+                    alert("Lỗi trong khi xóa thêm vào giỏ hàng!");
                 }
             });
-            return false;
         });
     });
 </script>
@@ -35,47 +72,46 @@
         <div class="row">
             <main class="col-md-9">
                 <div class="card">
-                    <table class="table table-borderless table-shopping-cart">
-                        <thead class="text-muted">
-                            <tr class="small text-uppercase">
-                                <th scope="col">Product</th>
-                                <th scope="col" width="120">Quantity</th>
-                                <th scope="col" width="120">Price</th>
-                                <th scope="col" class="text-right" width="200"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null)
-                            {
-                                foreach (var item in Model)
+                    @if (Model != null && Model.Any())
+                    {
+                        <table class="table table-borderless table-shopping-cart">
+                            <thead class="text-muted">
+                                <tr class="small text-uppercase">
+                                    <th scope="col">Product</th>
+                                    <th scope="col" width="120">Quantity</th>
+                                    <th scope="col" width="120">Price</th>
+                                    <th scope="col" class="text-right" width="200"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
                                 {
-                                    <tr>
+                                    <tr data-id="@item.product.Id">
                                         <td>
                                             <figure class="itemside">
                                                 <div class="aside">
-                                                    <img src="~/Content/images/items/@item.product.product_images" class="img-sm" />
+                                                    <img src="~/Content/images/product/@item.product.Images" class="img-sm" />
                                                 </div>
                                                 <figcaption class="info">
-                                                    <a href="#" class="title text-dark">@item.product.name</a>
+                                                    <a href="#" class="title text-dark">@item.product.Name</a>
                                                     <p class="text-muted small">
-                                                        Size: XL, Color: blue, <br />
-                                                        Brand: Gucci
+                                                        Size: @item.stocks?.Size, Color: @item.stocks?.Color, <br />
+                                                        Brand: @item.brands.Name
                                                     </p>
                                                 </figcaption>
                                             </figure>
                                         </td>
                                         <td>
-                                            <input type="text" value="@item.Quantity" />
+                                            <input type="text" value="@item.Quantity" class="product-quantity" />
                                         </td>
                                         <td>
                                             <div class="price-wrap">
-                                                <var class="price">@item.product.price</var>
-                                                <small class="text-muted"> $315.20 each </small>
+                                                <var class="price">@string.Format("{0:#,0}", item.product.Price)</var>
                                             </div>
                                             <!-- price-wrap .// -->
                                         </td>
                                         <td class="text-right">
-                                            <input type="hidden" value="@item.product.id" id="productid" />
+                                            <input type="hidden" value="@item.product.Id" id="product-id" />
                                             <a data-original-title="Save to Wishlist"
                                                title=""
                                                href=""
@@ -83,27 +119,40 @@
                                                data-toggle="tooltip">
                                                 <i class="fa fa-heart"></i>
                                             </a>
-                                            <a href="" class="btn btn-light" id="removecart"> Remove</a>
+                                            <a href="#" class="btn btn-light removecart" data-id="@item.product.Id"> Xóa</a>
                                         </td>
                                     </tr>
-
                                 }
-                            }
-                            else
-                            {
-                                <p>Khong co san pham trong gio hang</p>
-                            }
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
 
-                    <div class="card-body border-top">
-                        <a href="#" class="btn btn-primary float-md-right">
-                            Make Purchase <i class="fa fa-chevron-right"></i>
-                        </a>
-                        <a href="#" class="btn btn-light">
-                            <i class="fa fa-chevron-left"></i> Continue shopping
-                        </a>
-                    </div>
+                        <!-- Nút Thanh toán và Tiếp tục mua sắm -->
+                        <div class="card-body border-top">
+                            <a href="@Url.Action("Index", "Payment")" class="btn btn-primary float-md-right">
+                                Thanh toán <i class="fa fa-chevron-right"></i>
+                            </a>
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-light">
+                                <i class="fa fa-chevron-left"></i> Tiếp tục mua sắm
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <a href="@Url.Action("Index", "ShoppingCart")" class="btn btn-secondary float-md-right">
+                                Thanh toán với paypal <i class="fa fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Hiển thị thông báo giỏ hàng trống và chỉ có nút Tiếp tục mua sắm -->
+                        <div class="alert alert-info" role="alert">
+                            Không có sản phẩm trong giỏ hàng.
+                        </div>
+                        <div class="card-body border-top">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-light">
+                                <i class="fa fa-chevron-left"></i> Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    }
                 </div>
                 <!-- card.// -->
 
@@ -120,14 +169,14 @@
                     <div class="card-body">
                         <form>
                             <div class="form-group">
-                                <label>Have coupon?</label>
+                                <label>Có mã giảm giá?</label>
                                 <div class="input-group">
                                     <input type="text"
                                            class="form-control"
                                            name=""
-                                           placeholder="Coupon code" />
+                                           placeholder="Nhập mã giảm giá" />
                                     <span class="input-group-append">
-                                        <button class="btn btn-primary">Apply</button>
+                                        <button class="btn btn-primary">Áp dụng</button>
                                     </span>
                                 </div>
                             </div>
@@ -139,16 +188,16 @@
                 <div class="card">
                     <div class="card-body">
                         <dl class="dlist-align">
-                            <dt>Total price:</dt>
-                            <dd class="text-right">USD 568</dd>
+                            <dt>Tổng giá:</dt>
+                            <dd class="text-right" id="totalPrice">0 đ</dd>
                         </dl>
                         <dl class="dlist-align">
-                            <dt>Discount:</dt>
-                            <dd class="text-right">USD 658</dd>
+                            <dt>Giảm giá:</dt>
+                            <dd class="text-right" id="discountPrice">0 đ</dd>
                         </dl>
                         <dl class="dlist-align">
-                            <dt>Total:</dt>
-                            <dd class="text-right h5"><strong>$1,650</strong></dd>
+                            <dt>Tổng cộng:</dt>
+                            <dd class="text-right h5" id="finalTotal"><strong>0 đ</strong></dd>
                         </dl>
                         <hr />
                         <p class="text-center mb-3">

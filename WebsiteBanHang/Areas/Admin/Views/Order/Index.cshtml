@@ -1,0 +1,102 @@
+﻿@model List<WebsiteBanHang.Models.OrderViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="content-wrapper">
+    <section class="section-content padding-y">
+        <div class="container mt-5">
+            <h2 class="mb-4">Quản lý đơn hàng</h2>
+
+            <!-- Tìm kiếm và lọc -->
+            <div class="mb-4">
+                <form method="GET" class="form-inline">
+                    <input type="text" name="search" class="form-control mr-2" placeholder="Tìm kiếm đơn hàng..." />
+                    <select name="status" class="form-control mr-2">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="processing">Đang xử lý</option>
+                        <option value="shipped">Đã giao</option>
+                        <option value="canceled">Đã hủy</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                </form>
+            </div>
+
+            <!-- Bảng danh sách đơn hàng -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Danh sách đơn hàng</h4>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-warning text-center">
+                            <strong>Không có đơn hàng nào!</strong>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Khách hàng</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày đặt hàng</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    <tr>
+                                        <td>@order.OrderId</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>@order.CustomerEmail</td>
+                                        <td>@order.CustomerPhone</td>
+                                        <td>@string.Format("{0:#,0} đ", order.TotalAmount)</td>
+                                        <td>
+                                            <span class="badge @order.StatusClass">
+                                                @order.Status
+                                            </span>
+                                        </td>
+                                        <td>@order.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Order", new { id = order.OrderId })" class="btn btn-info btn-sm">Xem</a>
+                                            <button class="btn btn-danger btn-sm" onclick="cancelOrder(@order.OrderId)">Hủy</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<script>
+    function cancelOrder(orderId) {
+        if (confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
+            // Thực hiện AJAX để hủy đơn hàng
+            fetch(`/Orders/Cancel/${orderId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Hủy đơn hàng thành công!");
+                    location.reload();
+                } else {
+                    alert("Hủy đơn hàng thất bại.");
+                }
+            });
+        }
+    }
+</script>
