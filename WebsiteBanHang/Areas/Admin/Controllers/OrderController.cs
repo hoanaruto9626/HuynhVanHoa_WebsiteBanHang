@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using WebsiteBanHang.Connect;
@@ -85,6 +87,70 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
                 }).FirstOrDefault();
 
             return View(order);
+        }
+
+        // GET: Admin/Order/Delete/5
+        [HttpGet]
+        public ActionResult Delete(int? id)
+        {
+            var order = dbWebsite.Orders
+                .Where(item => item.Id == id)
+                .Select(item => new OrderViewModel
+                {
+                    OrderId = item.Id,
+                    OrderName = item.Name,
+                    CustomerName = item.User.UserName,
+                    CustomerEmail = item.User.Email,
+                    CustomerPhone = item.User.PhoneNumber,
+                    CustomerAddress = item.ShippingAddress,
+                    TotalAmount = item.TotalAmount,
+                    CreatedDate = (DateTime)item.OrderDate,
+                    //Status = GetStatusText(Convert.ToInt32(item.Status)),
+                    //StatusClass = GetStatusClass(Convert.ToInt32(item.Status)),
+                    OrderItems = item.OrderItems.Select(oi => new OrderItemViewModel
+                    {
+                        ProductName = oi.Product.Name,
+                        ProductImage = oi.Product.Images,
+                        Quantity = oi.Quantity,
+                        Price = oi.Price,
+                        SubTotal = oi.Quantity * oi.Price
+                    }).ToList()
+                }).FirstOrDefault();
+
+            return View(order);
+        }
+
+        // POST: Admin/Order/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            // Lấy đơn hàng từ cơ sở dữ liệu
+            var order = dbWebsite.Orders
+                .Where(item => item.Id == id)
+                .FirstOrDefault();
+
+            // Kiểm tra nếu không tìm thấy đơn hàng
+            if (order == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Xóa các mục trong đơn hàng trước khi xóa đơn hàng
+            var orderItems = order.OrderItems.ToList();
+            foreach (var orderItem in orderItems)
+            {
+                dbWebsite.OrderItems.Remove(orderItem); // Xóa từng mục trong đơn hàng
+            }
+
+            // Xóa đơn hàng
+            dbWebsite.Orders.Remove(order);
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            dbWebsite.SaveChanges();
+
+            // Chuyển hướng đến danh sách đơn hàng hoặc trang khác
+            return RedirectToAction("Index");
         }
 
         // Hàm ánh xạ trạng thái thành chuỗi

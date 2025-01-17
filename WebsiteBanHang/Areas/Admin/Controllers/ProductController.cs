@@ -21,6 +21,7 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
         // GET: Admin/Product
         public ActionResult Index(string SearchString, string currentFilter, int? page, int? size)
         {
+            // Thiết lập filter và trang hiện tại
             if (SearchString == null)
             {
                 SearchString = currentFilter;
@@ -29,59 +30,54 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
             ViewBag.CurrentFilter = SearchString;
 
             var products = objWebsiteBanHangEntities.Products.AsQueryable();
-
+            // Tìm kiếm theo tên sản phẩm nếu có từ khóa
             if (!string.IsNullOrEmpty(SearchString))
             {
                 products = products.Where(n => n.Name.Contains(SearchString));
             }
-
+            // Sắp xếp theo ID giảm dần
             products = products.OrderByDescending(n => n.Id);
 
-            // Thiết lập danh sách số lượng sản phẩm hiển thị trên một trang
-            var pageSizeOptions = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "5", Value = "5" },
-                new SelectListItem { Text = "10", Value = "10" },
-                new SelectListItem { Text = "20", Value = "20" },
-                new SelectListItem { Text = "25", Value = "25" },
-                new SelectListItem { Text = "50", Value = "50" },
-                new SelectListItem { Text = "100", Value = "100" },
-                new SelectListItem { Text = "200", Value = "200" }
-            };
-
-            // Đánh dấu lựa chọn kích thước trang hiện tại
-            foreach (var item in pageSizeOptions)
-            {
-                if (item.Value == size.ToString())
-                {
-                    item.Selected = true;
-                }
-            }
-
-            ViewBag.Size = pageSizeOptions;
-
+            // Lấy kích thước trang và số trang
             // Thiết lập kích thước trang và trang hiện tại
             int pageSize = size ?? 5; // Nếu size là null, mặc định là 5
+            ViewBag.CurrentSize = pageSize;
+            ViewBag.Size = new SelectList(new[] { 5, 10, 20, 25, 50, 100, 200 }, pageSize); // Lựa chọn số lượng sản phẩm trên mỗi trang
+
             int pageNumber = page ?? 1; // Nếu page là null, mặc định là trang 1
 
-            ViewBag.CurrentSize = pageSize;
-            ViewBag.Page = pageNumber;
+            // Tạo phân trang
+            IPagedList<Product> pagedProducts = products.ToPagedList(pageNumber, pageSize);
 
-            // Kiểm tra tổng số trang
-            int totalPages = (int)Math.Ceiling((double)products.Count() / pageSize);
+            if (Request.IsAjaxRequest())  // Nếu là yêu cầu Ajax
+            {
+                int totalPages = pagedProducts.PageCount;
+                int totalItemCount = pagedProducts.TotalItemCount;
 
-            // Đảm bảo số trang hiện tại không vượt quá tổng số trang
-            if (pageNumber > totalPages) pageNumber = totalPages > 0 ? totalPages : 1;
-
-            return View(products.ToPagedList(pageNumber, pageSize));
+                return Json(new
+                {
+                    Products = pagedProducts.Select(p => new
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Image = p.Images
+                    }).ToList(),
+                    CurrentPage = pagedProducts.PageNumber,  // Trang hiện tại
+                    TotalPages = totalPages,  // Tổng số trang
+                    TotalItemCount = totalItemCount  // Tổng số sản phẩm
+                }, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return View(pagedProducts); // Nếu không phải Ajax, trả về View với dữ liệu phân trang
+            }
         }
 
         //GET: Admin/Product/Details
         public ActionResult Details(int id)
         {
             var objProduct = objWebsiteBanHangEntities.Products.Where(n => n.Id == id).FirstOrDefault();
-            //objProduct.Details = StripHtml(objProduct.Details);
-            //objProduct.Description = StripHtml(objProduct.Description);
             return View(objProduct);
         }
 

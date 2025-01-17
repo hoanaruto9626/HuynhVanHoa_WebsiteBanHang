@@ -22,8 +22,6 @@ namespace WebsiteBanHang.Controllers
                     TempData["ErrorMessage"] = $"Không tìm thấy sản phẩm với ID: {id}";
                     return RedirectToAction("Index");
                 }
-                //product.Details = StripHtml(product.Details);
-                //product.Description = StripHtml(product.Description);
                 return View(product);
             }
             catch (Exception ex)

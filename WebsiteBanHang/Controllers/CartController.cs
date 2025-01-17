@@ -73,5 +73,27 @@ namespace WebsiteBanHang.Controllers
             Session["count"] = Convert.ToInt32(Session["count"]) - 1;
             return Json(new { Message = "Thành công", JsonRequestBehavior.AllowGet });
         }
+
+        [HttpPost]
+        public JsonResult UpdateQuantity(int productId, int quantity)
+        {
+            if (quantity < 1)
+            {
+                return Json(new { Message = "Số lượng không hợp lệ", JsonRequestBehavior.AllowGet });
+            }
+
+            List<CartModel> cart = (List<CartModel>)Session["cart"];
+            if (cart != null)
+            {
+                var cartItem = cart.FirstOrDefault(item => item.product.Id == productId);
+                if (cartItem != null)
+                {
+                    cartItem.Quantity = quantity;
+                    Session["cart"] = cart; // Cập nhật lại giỏ hàng trong session
+                    return Json(new { Message = "Cập nhật thành công", JsonRequestBehavior.AllowGet });
+                }
+            }
+            return Json(new { Message = "Sản phẩm không tồn tại trong giỏ hàng", JsonRequestBehavior.AllowGet });
+        }
     }
 }

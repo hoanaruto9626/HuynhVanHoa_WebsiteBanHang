@@ -217,6 +217,15 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
                     return HttpNotFound();
                 }
 
+                // Kiểm tra nếu danh mục đang được liên kết với sản phẩm
+                var linkedProducts = objWebsiteBanHangEntities.Products.Where(p => p.CategoryId == id).ToList();
+                if (linkedProducts.Any())
+                {
+                    // Hiển thị thông báo lỗi nếu danh mục đang được sử dụng
+                    ModelState.AddModelError("", "Không thể xóa danh mục vì nó đang được liên kết với sản phẩm.");
+                    return View(category);
+                }
+
                 // Lấy đường dẫn ảnh của danh mục
                 string imagePath = Server.MapPath("~/Content/images/categories/");
                 string imageFile = category.Image;

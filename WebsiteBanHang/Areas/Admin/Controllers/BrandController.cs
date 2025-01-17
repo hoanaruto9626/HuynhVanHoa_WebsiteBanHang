@@ -197,14 +197,23 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
         {
             try
             {
-                // Tìm danh mục cần xóa
+                // Tìm thương hiệu cần xóa
                 Brand brand = objWebsiteBanHangEntities.Brands.Find(id);
                 if (brand == null)
                 {
                     return HttpNotFound();
                 }
 
-                // Lấy đường dẫn ảnh của danh mục
+                // Kiểm tra nếu thương hiệu đang được liên kết với sản phẩm
+                var linkedProducts = objWebsiteBanHangEntities.Products.Where(p => p.BrandId == id).ToList();
+                if (linkedProducts.Any())
+                {
+                    // Hiển thị thông báo lỗi nếu thương hiệu đang được sử dụng
+                    ModelState.AddModelError("", "Không thể xóa thương hiệu vì nó đang được liên kết với sản phẩm.");
+                    return View(brand);
+                }
+
+                // Lấy đường dẫn ảnh của thương hiệu
                 string imagePath = Server.MapPath("~/Content/images/brand/");
                 string imageFile = brand.Image;
 
@@ -218,7 +227,7 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
                     }
                 }
 
-                // Xóa danh mục khỏi cơ sở dữ liệu
+                // Xóa thương hiệu khỏi cơ sở dữ liệu
                 objWebsiteBanHangEntities.Brands.Remove(brand);
                 objWebsiteBanHangEntities.SaveChanges();
 

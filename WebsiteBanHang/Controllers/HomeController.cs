@@ -40,23 +40,32 @@ namespace WebsiteBanHang.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Register(Connect.User _user)
         {
-            //Kiem tra va luu vao db
+            // Kiểm tra và lưu vào cơ sở dữ liệu
             if (ModelState.IsValid)
             {
-                var check = objWebsiteBanHangEntities.Users.FirstOrDefault(s => s.Email == _user.Email);
-                if (check == null)
-                {
-                    _user.Password = GetMD5(_user.Password);
-                    objWebsiteBanHangEntities.Configuration.ValidateOnSaveEnabled = false;
-                    objWebsiteBanHangEntities.Users.Add(_user);
-                    objWebsiteBanHangEntities.SaveChanges();
-                    return RedirectToAction("Index");
-                }
-                else
+                // Kiểm tra email đã tồn tại
+                var checkEmail = objWebsiteBanHangEntities.Users.FirstOrDefault(s => s.Email == _user.Email);
+                if (checkEmail != null)
                 {
                     ViewBag.error = "Email đã tồn tại.";
                     return View();
                 }
+
+                // Kiểm tra tên đăng nhập đã tồn tại
+                var checkUsername = objWebsiteBanHangEntities.Users.FirstOrDefault(s => s.UserName == _user.UserName);
+                if (checkUsername != null)
+                {
+                    ViewBag.error = "Tên đăng nhập đã tồn tại.";
+                    return View();
+                }
+
+                // Mã hóa mật khẩu và lưu người dùng vào cơ sở dữ liệu
+                _user.Password = GetMD5(_user.Password);
+                objWebsiteBanHangEntities.Configuration.ValidateOnSaveEnabled = false;
+                objWebsiteBanHangEntities.Users.Add(_user);
+                objWebsiteBanHangEntities.SaveChanges();
+
+                return RedirectToAction("Index");
             }
             return View();
         }

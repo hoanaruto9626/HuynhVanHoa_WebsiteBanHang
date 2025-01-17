@@ -7,6 +7,39 @@
     var totalPages = Model.PageCount;
     var currentPage = Model.PageNumber;
 }
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".add-to-cart").click(function (e) {
+            e.preventDefault(); // Ngăn chặn hành động mặc định của thẻ <a>
+
+            var productId = $(this).data("id"); // Lấy Id từ data-id
+            var quantity = 1; // Bạn có thể thêm input để chọn số lượng nếu cần
+
+            var model = {
+                Id: productId,
+                Quantity: quantity
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddToCart", "Cart")',
+                data: JSON.stringify(model),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    alert("Thêm giỏ hàng thành công!");
+                    var currentCount = parseInt($('#CartCount').text()) || 0;
+                    $('#CartCount').text(currentCount + 1); // Cập nhật số lượng trong giỏ hàng
+                },
+                error: function () {
+                    alert("Lỗi trong khi thêm vào giỏ hàng!");
+                }
+            });
+        });
+    });
+</script>
+
 <!-- ========================= SECTION CONTENT ========================= -->
 <section class="section-content padding-y">
     <div class="container">
@@ -109,46 +142,6 @@
         </header><!-- sect-heading -->
 
         <div class="row">
-            @*<div class="col-md-3">
-                    <figure class="card card-product-grid">
-                        <div class="img-wrap">
-                            <span class="badge badge-danger"> NEW </span>
-                            <img src="~/Content/images/items/1.jpg">
-                        </div>
-                        img-wrap.//
-                        <figcaption class="info-wrap">
-                            <a href="#" class="title mb-2">Hot sale unisex New Design Shirt for sport polo shirts latest design</a>
-                            <div class="price-wrap">
-                                <span class="price">$32.00-$40.00</span>
-                                <small class="text-muted">/per item</small>
-                            </div>
-                            price-wrap.//
-                            <p class="mb-2"> 2 Pieces  <small class="text-muted">(Min Order)</small></p>
-
-                            <p class="text-muted ">Guangzhou Yichuang Electronic Co</p>
-
-                            <hr>
-
-                            <p class="mb-3">
-                                <span class="tag"> <i class="fa fa-check"></i> Verified</span>
-                                <span class="tag"> 2 Years </span>
-                                <span class="tag"> 23 reviews </span>
-                                <span class="tag"> Japan </span>
-                            </p>
-
-                            <label class="custom-control mb-3 custom-checkbox">
-                                <input type="checkbox" class="custom-control-input">
-                                <div class="custom-control-label">
-                                    Add to compare
-                                </div>
-                            </label>
-
-                            <a href="#" class="btn btn-outline-primary"> <i class="fa fa-envelope"></i> Contact supplier </a>
-
-                        </figcaption>
-                    </figure>
-                </div>*@
-
            @foreach (var item in Model)
             {
                 <div class="col-md-3">
@@ -182,7 +175,7 @@
                                 </div>
                             </label>
 
-                            <a href="#" class="btn btn-outline-primary"> <i class="fa fa-envelope"></i> Liên hệ nhà cung cấp </a>
+                            <a href="#" data-id="@item.Id" class="btn btn-outline-primary add-to-cart"> <i class="fas fa-shopping-cart"></i> Thêm giỏ hàng</a>
 
                         </figcaption>
                     </figure>

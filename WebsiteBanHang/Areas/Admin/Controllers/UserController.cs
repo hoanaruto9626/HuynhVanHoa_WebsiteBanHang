@@ -11,6 +11,7 @@ using System.Web.Helpers;
 using System.Web.Mvc;
 using WebsiteBanHang.Connect;
 using WebsiteBanHang.Models;
+using BCrypt.Net;
 
 namespace WebsiteBanHang.Areas.Admin.Controllers
 {
@@ -55,15 +56,39 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
-            // Mã hóa mật khẩu trước khi lưu
+            // Kiểm tra trùng lặp username (nếu có cập nhật)
+            if (!string.IsNullOrEmpty(userViewModel.UserName) && userViewModel.UserName != user.UserName)
+            {
+                if (dbUser.Users.Any(u => u.UserName == userViewModel.UserName))
+                {
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại.");
+                    return View(user);
+                }
+            }
 
-            user.UserName = userViewModel.UserName;
-            user.Email = userViewModel.Email;
+            // Kiểm tra trùng lặp email (nếu có cập nhật)
+            if (!string.IsNullOrEmpty(userViewModel.Email) && userViewModel.Email != user.Email)
+            {
+                if (dbUser.Users.Any(u => u.Email == userViewModel.Email))
+                {
+                    ModelState.AddModelError("Email", "Email đã tồn tại.");
+                    return View(user);
+                }
+            }
+
+            user.UserName = string.IsNullOrEmpty(userViewModel.UserName) ? user.UserName : userViewModel.UserName;
+            user.Email = string.IsNullOrEmpty(userViewModel.Email) ? user.Email : userViewModel.Email;
             user.FirstName = userViewModel.FirstName;
             user.LastName = userViewModel.LastName;
             user.PhoneNumber = userViewModel.PhoneNumber;
             user.IsAdmin = userViewModel.IsAdmin;
-            user.Password = GetMD5(userViewModel.Password);
+
+            // Check if password needs to be updated
+            if (!string.IsNullOrEmpty(userViewModel.Password))
+            {
+                var hashedPassword = GetMD5(userViewModel.Password);
+                user.Password = hashedPassword;
+            }
 
             await dbUser.SaveChangesAsync();
 
@@ -100,6 +125,15 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
                     return HttpNotFound();
                 }
 
+                // Kiểm tra nếu danh mục đang được liên kết với sản phẩm
+                var linkedOrders = dbUser.Orders.Where(p => p.UserId == id).ToList();
+                if (linkedOrders.Any())
+                {
+                    // Hiển thị thông báo lỗi nếu danh mục đang được sử dụng
+                    ModelState.AddModelError("", "Không thể xóa người dùng vì nó đang có đơn hàng.");
+                    return View(users);
+                }
+
                 // Xóa danh mục khỏi cơ sở dữ liệu
                 dbUser.Users.Remove(users);
                 dbUser.SaveChanges();
@@ -124,6 +158,24 @@ namespace WebsiteBanHang.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (dbUser.Users.Any(u => u.UserName == user.UserName))
+                {
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại.");
+                    return View(user); // Trả về view với thông báo lỗi
+                }
+
+                //Kiểm tra xem Email đã tồn tại chưa
+                if (dbUser.Users.Any(u => u.Email == user.Email))
+                {
+                    ModelState.AddModelError("Email", "Email đã tồn tại.");
+                    return View(user); // Trả về view với thông báo lỗi
+                }
+
+                if (string.IsNullOrWhiteSpace(user.Password)) // Sử dụng IsNullOrWhiteSpace để kiểm tra cả khoảng trắng
+                {
+                    ModelState.AddModelError("Password", "Vui lòng nhập mật khẩu."); // Thêm lỗi vào ModelState
+                    return View(user); // Trả về View để hiển thị thông báo lỗi
+                }
                 // Mã hóa mật khẩu trước khi lưu
                 user.Password = GetMD5(user.Password);
 

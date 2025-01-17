@@ -15,5 +15,6 @@ namespace WebsiteBanHang.Models
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsAdmin { get; set; }
+        public string PasswordHash { get; set; }
     }
 }

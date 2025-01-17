@@ -1,7 +1,9 @@
 ﻿@model WebsiteBanHang.Models.HomeModel
+
 @{
     ViewBag.Title = "Home Page";
 }
+
 <div class="container">
     <!-- ========================= SECTION MAIN  ========================= -->
     <section class="section-main padding-y">
@@ -13,7 +15,7 @@
                         <h6>Danh mục</h6>
                         <nav class="nav-home-aside">
                             <ul class="menu-category">
-                               @foreach (var item in Model.categories)
+                                @foreach (var item in Model.categories)
                                 {
                                     <li>
                                         @*<a href="#">@item.name</a>*@
@@ -84,13 +86,13 @@
             <div class="col-heading content-body">
                 <header class="section-heading">
                     <h3 class="section-title">Giảm giá sốc</h3>
-                    <p>Hygiene equipments</p>
+                    <p>Thiết bị giảm giá</p>
                 </header><!-- sect-heading -->
                 <div class="timer">
-                    <div> <span class="num">04</span> <small>Days</small></div>
-                    <div> <span class="num">12</span> <small>Hours</small></div>
-                    <div> <span class="num">58</span> <small>Min</small></div>
-                    <div> <span class="num">02</span> <small>Sec</small></div>
+                    <div> <span class="num">04</span> <small>Ngày</small></div>
+                    <div> <span class="num">12</span> <small>Giờ</small></div>
+                    <div> <span class="num">58</span> <small>Phút</small></div>
+                    <div> <span class="num">02</span> <small>Giây</small></div>
                 </div>
             </div> <!-- col.// -->
             <div class="row no-gutters items-wrap">
@@ -110,7 +112,7 @@
                             </div>
                         </figure>
                     </div> <!-- col.// -->
-                 }
+                }
             </div>
         </div>
 
@@ -129,8 +131,8 @@
                     <div class="col-md-3">
 
                         <div class="home-category-banner bg-light-orange">
-                            <h5 class="title">Best trending clothes only for summer</h5>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+                            <h5 class="title">Cửa Hàng. Nơi một năm mới thông thái bắt đầu.</h5>
+                            <p>Chuyên Gia về Doanh Nghiệp Nhỏ của chúng tôi luôn sẵn sàng hỗ trợ. Họ sẽ tư vấn cho bạn những thiết bị phù hợp với ngân sách của bạn và tìm cho bạn lựa chọn hỗ trợ tài chính tốt nhất. </p>
                             <a href="#" class="btn btn-outline-primary rounded-pill">Source now</a>
                             <img src="~/Content/images/brand/@item.Image" class="img-bg">
                         </div>
@@ -143,11 +145,12 @@
                                 <li class="col-6 col-lg-3 col-md-4">
                                     <a href="@Url.Action("Detail", "Product", new {id = product.Id})" class="item">
                                         <div class="card-body">
-                                            <h6 class="title">Well made women clothes with trending collection  </h6>
+                                            <h6 class="title">@product.Name</h6>
                                             <img class="img-sm float-right" src="~/Content/images/product/@product.Images">
                                             <p class="text-muted">
                                                 <i class="fa fa-map-marker-alt"></i>
-                                                @product.Name
+                                                America
+                                                @*@product.Name*@
                                                 @*@Html.ActionLink(item.name, "Detail", "Product", new { id = item.id }, null)*@
                                             </p>
                                         </div>
@@ -161,7 +164,6 @@
         </section>
     }
     <!-- =============== SECTION 1 END =============== -->
-
     <!-- =============== SECTION REQUEST =============== -->
 
     <section class="padding-bottom">
